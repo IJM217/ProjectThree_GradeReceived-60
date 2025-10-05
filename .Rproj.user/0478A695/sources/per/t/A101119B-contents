@@ -1,0 +1,57 @@
+# Assignment 3
+# Israel Masters
+
+l <- read.csv("lions.txt",sep =" ")
+summary(l)
+
+boxplot(l$prop.black ~ l$sex)
+boxplot(l$age ~ l$sex)
+hist(l$age)
+hist(l$prop.black)
+plot(l$prop.black ~ l$age)
+t.test(l$prop.black ~ l$sex)
+ma <- lm(prop.black ~ sex, data = l)
+summary(ma)
+sex <- levels(as.factor(l$sex))
+plot(l$prop.black ~ l$age,ylab = "Proportion of Black", xlab = "Age", col = ifelse(l$sex == "female", "pink", "darkblue"), pch = 16, main = "Lions")
+legend("topleft", col = c("pink", "darkblue"), legend = sex, pch = 16)
+mb <- lm(prop.black ~ age, data = l)
+abline(mb, col = "purple", lwd = 3 )
+summary(mb)
+
+mc <- lm(prop.black ~ age + sex, data = l)
+x <- seq(0, 16, length = 1000)
+sx <- sex
+nd <- expand.grid(age = x, sex = sx)
+nd
+mc.pred <- predict(mc, new = nd)
+lines(x, mc.pred[1:1000],col = "red", lwd = 3)
+lines(x, mc.pred[1001:2000], col = "blue", lwd = 3)
+summary(mc)
+
+install.packages("visreg")
+library(visreg)
+visreg(mc, "age", by = "sex", overlay = FALSE)
+abline(mb, col = "yellow", lwd = 3 )
+
+md <- lm(prop.black ~ age + sex + age:sex, data = l)
+summary(md)
+logLik(md)
+?logLik
+
+me <- lm(prop.black ~ age + sex + park + age:sex, data = l)
+summary(me)
+
+
+aics <- AIC(ma, mb, mc, md, me)
+delta.aics <- aics$AIC - min(aics$AIC)
+exp(-0.5*delta.aics)/sum(exp(-0.5*delta.aics))
+
+
+m1 <- lm(age ~ prop.black, data = l)
+summary(m1)
+m2 <- lm(age ~ prop.black + sex + park, data = l)
+summary(m2)
+m3 <- lm(age ~ prop.black + sex*park, data = l)
+summary(m3)
+visreg(m3,by = c("sex", "park"), overlay = FALSE)

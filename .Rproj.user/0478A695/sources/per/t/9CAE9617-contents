@@ -1,0 +1,43 @@
+# Assignment 2
+# MSTISR001
+
+as <- read.csv("animalsleep.csv")
+
+summary(as)
+pairs(~TotalSleep + BodyWt + BrainWt + LifeSpan + Gestation + Predation + Exposure, data = as)
+as_1 <- subset(as,select = -c(Species,Feeding))
+cormat <- cor(as_1, use = "pairwise.complete.obs")
+cor.test(as$TotalSleep,as$BrainWt, use = "pairwise.complete.obs")
+which.min(as$TotalSleep)
+which.max(as$TotalSleep)
+hist(as$TotalSleep)
+as_1$logBrW <- log(as_1$BrainWt)
+plot(as_1$TotalSleep ~ as_1$BrainWt)
+plot(as_1$TotalSleep ~ as_1$logBrW)
+par(mfrow = c(1,2))
+plot(as_1$TotalSleep ~ as_1$logBrW)
+ts_lbrw <- lm(TotalSleep ~ logBrW, data = as_1)
+abline(ts_lbrw, lwd = 2, col = 'magenta')
+as_1$logBdW <- log(as_1$BodyWt)
+plot(as_1$TotalSleep ~ as_1$logBrW + as_1$logBdW)
+ts_lbrw_lbdw <- lm(TotalSleep ~ logBrW + logBdW, data = as_1)
+ts_brw_bdw <- lm(TotalSleep ~ BodyWt + BrainWt, data = as_1)
+summary(ts_lbrw)
+summary(ts_lbrw_lbdw)
+summary(ts_brw_bdw)
+install.packages("car")
+vif(ts_lbrw_lbdw)
+m4 <- lm(TotalSleep ~ Gestation + Danger + LifeSpan + logBrW, data = na.omit(as_1))
+summary(m4)
+predict(m4, newdata = data.frame(logBrW = 6.27, Gestation = 400, Danger = 5, LifeSpan = 28))
+predict(m4, newdata = data.frame(logBrW = 6.5220928, Gestation = 400, Danger = 5, LifeSpan = 28), interval = 'confidence')
+
+as_1$logG <- log(as_1$Gestation)
+as_1$logD <- log(as_1$Danger)
+as_1$logL <- log(as_1$LifeSpan)
+
+m4.log <- lm(TotalSleep ~ logG + logD + logL + logBrW, data = na.omit(as_1))
+predict(m4.log, newdata = data.frame(logBrW = 6.5220928, logG = 5.991465, logD = 1.6094379, logL = 3.3322045), interval = 'confidence')
+
+plot(m4)
+plot(m4.log)
